@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mundo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        
+        html,
+        body {
+            height: 100%;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+            color: #fff;
+            background: #272727
+        }
+        
+        .app {
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px
+        }
+        
+        .card {
+            position: relative;
+            z-index: 30;
+            width: min(1100px, 96vw);
+            height: min(720px, 88vh);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            backdrop-filter: blur(6px);
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(2, 2, 6, 0.6);
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 20px;
+            padding: 22px
+        }
+        
+        .left {
+            display: flex;
+            flex-direction: column;
+            gap: 18px
+        }
+        
+        .cover {
+            flex: 0 0 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.35)
+        }
+        
+        .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+        
+        .title {
+            font-size: 20px;
+            font-weight: 700
+        }
+        
+        .artist {
+            opacity: 0.8
+        }
+        
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px
+        }
+        
+        .btn {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(180deg, rgba(226, 112, 6, 0.067), #d1410800);
+            cursor: pointer;
+            font-weight: 700;
+            color: inherit
+        }
+        
+        .btn.play {
+            background: linear-gradient(90deg, #f1f1ef, #fffefe);
+            color: #041219
+        }
+        
+        .progress {
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            overflow: hidden
+        }
+        
+        .progress>i {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #e68c06, #e68c06)
+        }
+        
+        .right {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 8px 6px
+        }
+        
+        .lyrics-box {
+            flex: 1;
+            overflow: hidden;
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.05))
+        }
+        
+        .lyrics {
+            height: 100%;
+            overflow: auto;
+            padding-right: 10px;
+            font-size: 18px
+        }
+        
+        .word {
+            opacity: 0.6;
+            transition: all .2s;
+        }
+        
+        .word.active {
+            color: #e2620d;
+            opacity: 1;
+            font-weight: 700;
+            transform: scale(1.1);
+        }
+        
+        .bg-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none
+        }
+        
+        .bg-pic {
+            position: absolute;
+            width: 220px;
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            opacity: 0.85;
+            border: 1px solid rgba(255, 255, 255, 0.06)
+        }
+        
+        @keyframes move-right {
+            0% {
+                transform: translateX(-30%) rotate(0deg)
+            }
+            50% {
+                transform: translateX(30%) rotate(5deg)
+            }
+            100% {
+                transform: translateX(-30%) rotate(0deg)
+            }
+        }
+        
+        @keyframes move-left {
+            0% {
+                transform: translateX(30%) rotate(0deg)
+            }
+            50% {
+                transform: translateX(-30%) rotate(-5deg)
+            }
+            100% {
+                transform: translateX(30%) rotate(0deg)
+            }
+        }
+        
+        @keyframes move-down {
+            0% {
+                transform: translateY(-30%) rotate(0deg)
+            }
+            50% {
+                transform: translateY(30%) rotate(4deg)
+            }
+            100% {
+                transform: translateY(-30%) rotate(0deg)
+            }
+        }
+        
+        @keyframes move-up {
+            0% {
+                transform: translateY(30%) rotate(0deg)
+            }
+            50% {
+                transform: translateY(-30%) rotate(-4deg)
+            }
+            100% {
+                transform: translateY(30%) rotate(0deg)
+            }
+        }
+        
+        .move-right {
+            animation: move-right linear infinite
+        }
+        
+        .move-left {
+            animation: move-left linear infinite
+        }
+        
+        .move-down {
+            animation: move-down linear infinite
+        }
+        
+        .move-up {
+            animation: move-up linear infinite
+        }
+        
+        @media (max-width:900px) {
+            .card {
+                grid-template-columns: 1fr;
+                height: auto
+            }
+            .left {
+                order: 2
+            }
+            .right {
+                order: 1
+            }
+            .cover {
+                height: 180px
+            }
+        }
+        
+        .footer {
+            font-size: 12px;
+            opacity: 0.6;
+            text-align: center;
+            margin-top: 6px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <div class="bg-layer" id="bgLayer"></div>
+
+        <div class="card">
+            <div class="left">
+                <div class="cover" id="cover" style="background-image: url('images/last.jpg')"></div>
+                <div class="meta">
+                    <div class="title"><span style="color:orange;">Mundo <span style="font-size:14px;font-weight:600;opacity:0.75; color:rgb(250, 240, 240);">— IV of Spades</span></div>
+                    <div class="artist">Ikaw lang mundo sa buhay ko, I love you so much.</div>
+                    <div class="controls">
+                        <button class="btn play" id="playBtn"><span style="color:orange;">Play</button>
+                        <button class="btn" id="muteBtn">Mute</button>
+                        <div style="flex:1"></div>
+                    </div>
+                    <div class="progress" id="progress"><i></i></div>
+                    <div class="row" style="justify-content:flex-start;margin-top:6px">
+                        <small id="time"><span style="color:orange;">00:00 / 00:00</small>
+                    </div>
+                </div>
+                <div class="footer"><span style="font-size:14px; opacity:9.75; color:rgb(243, 122, 9); font-weight:bold;">
+    HAPPY HAPPY BIRTHDAY SA MAHAL KONG BABY I LOVE YOU SO MUCH IKAW LANG MAHAL KO IKAW LANG MUNDO KO, 
+    ARAW ARAW KITANG MAHAL, ARAW ARAW KITANG GUSTO, ARAW ARAW KONG HINAHANAP HANAP PRESENSYA MO. 
+    MAHAL NA MAHAL KITA BABY KO :>>> </div>
+            </div>
+
+            <div class="right">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <h3 style="margin:0">Lyrics</h3>
+                    <div style="font-size:13px;opacity:00.8;color:rgb(243, 161, 9);">Click words to jump</div>
+                </div>
+
+                <div class="lyrics-box">
+                    <div class="lyrics" id="lyrics"></div>
+                </div>
+            </div>
+        </div>
+
+        <audio id="audio" preload="metadata">
+      <source src="images/Mundo1.mp3" type="audio/mpeg">
+      Your browser doesn't support audio playback.
+    </audio>
+    </div>
+
+    <script>
+        // Words with timestamps (add the rest of the lyrics here)
+        const WORDS = [{
+            time: 0.0,
+            text: "Aking sinta"
+        }, {
+            time: 6.0,
+            text: "Ikaw na ang tahanan at mundo (mundo'y magiging ikaw)"
+        }, {
+            time: 13.5,
+            text: "Sa pagbalik"
+        }, {
+            time: 17.0,
+            text: "Mananatili na sa piling mo (mundo'y magiging ikaw)"
+        }, {
+            time: 24.0,
+            text: "Aking sinta (limutin na ang mundo)"
+        }, {
+            time: 30.0,
+            text: "Ikaw na ang tahanan at mundo (nang magkasama tayo)"
+        }, {
+            time: 37.0,
+            text: "(Mundo'y magiging ikaw)"
+        }, {
+            time: 41.0,
+            text: "Sa pagbalik (sunod sa bawat galaw)"
+        }, {
+            time: 47.0,
+            text: "Mananatili na sa piling mo (hindi na maliligaw)"
+        }, {
+            time: 53.0,
+            text: "Mundo'y magiging ikaw."
+        }];
+
+        const bgLayer = document.getElementById('bgLayer');
+        for (let i = 1; i <= 15; i++) {
+            const d = document.createElement('div');
+            d.className = 'bg-pic';
+            d.style.backgroundImage = `url('images/pic${i}.jpg')`;
+            const w = 160 + Math.round(Math.random() * 160);
+            const h = 110 + Math.round(Math.random() * 150);
+            d.style.width = w + 'px';
+            d.style.height = h + 'px';
+            d.style.left = Math.round(Math.random() * 80) + '%';
+            d.style.top = Math.round(Math.random() * 80) + '%';
+            const moves = ['move-right', 'move-left', 'move-down', 'move-up'];
+            d.classList.add(moves[Math.floor(Math.random() * moves.length)]);
+            d.style.animationDuration = (25 + Math.round(Math.random() * 30)) + 's';
+            d.style.animationDelay = (Math.round(Math.random() * -30)) + 's';
+            bgLayer.appendChild(d);
+        }
+
+        const lyricsEl = document.getElementById('lyrics');
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('playBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const progressBar = document.querySelector('#progress > i');
+        const timeLabel = document.getElementById('time');
+
+        function renderWords() {
+            lyricsEl.innerHTML = '';
+            WORDS.forEach((w) => {
+                const span = document.createElement('span');
+                span.className = 'word';
+                span.dataset.time = w.time;
+                span.textContent = w.text + " ";
+                lyricsEl.appendChild(span);
+            });
+        }
+        renderWords();
+
+        function updateProgress() {
+            if (!audio.duration || isNaN(audio.duration)) return;
+            const pct = audio.currentTime / audio.duration;
+            progressBar.style.width = (pct * 100) + '%';
+            timeLabel.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+        }
+
+        function formatTime(sec) {
+            if (!isFinite(sec)) return '<span style="color:orange;">00:00</span>'; const m = Math.floor(sec / 60); const s = Math.floor(sec % 60); return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; } playBtn.addEventListener('click',
+                    () => { if (audio.paused) { audio.play().catch(() => {}); playBtn.textContent = 'Pause'; playBtn.classList.remove('play'); } else { audio.pause(); playBtn.textContent = 'Play'; playBtn.classList.add('play'); } }); muteBtn.addEventListener('click',
+                    () => { audio.muted = !audio.muted; muteBtn.textContent = audio.muted ? 'Unmute' : 'Mute'; }); audio.addEventListener('timeupdate', () => { updateProgress(); const cur = audio.currentTime; const words = document.querySelectorAll('.word');
+                    words.forEach((w) => { const wordTime = parseFloat(w.dataset.time); const nextWord = w.nextElementSibling ? parseFloat(w.nextElementSibling.dataset.time) : audio.duration; w.classList.toggle('active', cur >= wordTime && cur
+                    < nextWord); }); }); audio.addEventListener( 'loadedmetadata', updateProgress); // Click word to jump lyricsEl.addEventListener( 'click', (e)=> { if (!e.target.classList.contains('word')) return; const t = parseFloat(e.target.dataset.time); if (!isNaN(t)) audio.currentTime = t; });
+                        </script>
+</body>
+
+</html>
